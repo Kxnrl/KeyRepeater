@@ -15,6 +15,7 @@ namespace KeyRepeater
         private static Thread[] backgroundWorkers = new Thread[6];
         private static bool[]   backgroundRefresh = new bool[6];
         private static bool[]   backgroundStarted = new bool[6];
+        private static bool[]   backgroundStopped = new bool[6];
 
         private Config.GroupHotKey hotkey = new Config.GroupHotKey();
         private Config.GroupInterval interval = new Config.GroupInterval();
@@ -67,7 +68,7 @@ namespace KeyRepeater
 
             GameLog = new TextBox
             {
-                Font = new Font("微软雅黑", 9F, FontStyle.Regular, GraphicsUnit.Point, 134),
+                Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 134),
                 Location = new Point(2, 12),
                 Name = "GameLog",
                 ReadOnly = true,
@@ -281,6 +282,13 @@ namespace KeyRepeater
                             backgroundStarted[t] = true;
                         }
                     }
+                    else
+                    {
+                        for (var t = 1; t < backgroundWorkers.Length; ++t)
+                        {
+                            backgroundStopped[t] = true;
+                        }
+                    }
                     Invoke(new Action(() =>
                     {
                         SetControls(!enabled);
@@ -336,6 +344,12 @@ namespace KeyRepeater
                 if (backgroundRefresh[tid])
                 {
                     backgroundRefresh[tid] = false;
+                    break;
+                }
+
+                if (backgroundStopped[tid])
+                {
+                    backgroundStopped[tid] = false;
                     break;
                 }
 
